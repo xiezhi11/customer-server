@@ -119,10 +119,10 @@
         <el-table-column label="操作" width="280" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" type="text" @click="viewDetail(scope.row)">详情</el-button>
-            <template v-if="currentRole === 'SERVICE' && scope.row.status === 'PENDING_ASSIGN'">
+            <template v-if="currentRole === 'CUSTOMER_SERVICE' && scope.row.status === 'PENDING_ASSIGN'">
               <el-button size="mini" type="primary" @click="openAssignDialog(scope.row)">分派</el-button>
             </template>
-            <template v-if="currentRole === 'SERVICE' && canClose(scope.row.status)">
+            <template v-if="currentRole === 'CUSTOMER_SERVICE' && canClose(scope.row.status)">
               <el-button size="mini" type="danger" @click="openCloseDialog(scope.row)">关闭</el-button>
             </template>
             <template v-if="currentRole === 'HANDLER' && scope.row.status === 'ASSIGNED'">
