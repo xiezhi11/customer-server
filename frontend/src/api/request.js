@@ -9,7 +9,7 @@ request.interceptors.request.use(config => {
   const role = localStorage.getItem('currentRole')
   const user = localStorage.getItem('currentUser')
   if (role) config.headers['X-Role'] = role
-  if (user) config.headers['X-User'] = encodeURIComponent(user)
+  if (user) config.headers['X-User'] = user
   return config
 })
 

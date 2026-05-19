@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -19,12 +20,23 @@ public class WorkOrderController {
     @Autowired
     private WorkOrderService workOrderService;
 
+    private String getUsername(String header) {
+        if (header == null) return "";
+        try {
+            return new String(header.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return header;
+        }
+    }
+
     @PostMapping
     public Result<WorkOrder> createWorkOrder(
             @Validated @RequestBody CreateWorkOrderDTO dto,
-            @RequestHeader("X-Role") RoleType role,
+            @RequestHeader("X-Role") String roleStr,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.createWorkOrder(dto, currentUser);
+        RoleType role = RoleType.valueOf(roleStr);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.createWorkOrder(dto, user);
         return Result.success(workOrder);
     }
 
@@ -33,7 +45,8 @@ public class WorkOrderController {
             @PathVariable Long id,
             @Validated @RequestBody AssignWorkOrderDTO dto,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.assignWorkOrder(id, dto, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.assignWorkOrder(id, dto, user);
         return Result.success(workOrder);
     }
 
@@ -41,7 +54,8 @@ public class WorkOrderController {
     public Result<WorkOrder> acceptWorkOrder(
             @PathVariable Long id,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.acceptWorkOrder(id, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.acceptWorkOrder(id, user);
         return Result.success(workOrder);
     }
 
@@ -50,7 +64,8 @@ public class WorkOrderController {
             @PathVariable Long id,
             @Validated @RequestBody SubmitResultDTO dto,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.submitResult(id, dto, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.submitResult(id, dto, user);
         return Result.success(workOrder);
     }
 
@@ -58,7 +73,8 @@ public class WorkOrderController {
     public Result<WorkOrder> confirmComplete(
             @PathVariable Long id,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.confirmComplete(id, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.confirmComplete(id, user);
         return Result.success(workOrder);
     }
 
@@ -67,7 +83,8 @@ public class WorkOrderController {
             @PathVariable Long id,
             @Validated @RequestBody ReturnWorkOrderDTO dto,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.returnWorkOrder(id, dto, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.returnWorkOrder(id, dto, user);
         return Result.success(workOrder);
     }
 
@@ -76,16 +93,19 @@ public class WorkOrderController {
             @PathVariable Long id,
             @Validated @RequestBody CloseWorkOrderDTO dto,
             @RequestHeader("X-User") String currentUser) {
-        WorkOrder workOrder = workOrderService.closeWorkOrder(id, dto, currentUser);
+        String user = getUsername(currentUser);
+        WorkOrder workOrder = workOrderService.closeWorkOrder(id, dto, user);
         return Result.success(workOrder);
     }
 
     @GetMapping
     public Result<List<WorkOrder>> queryWorkOrders(
             @ModelAttribute WorkOrderQueryDTO dto,
-            @RequestHeader("X-Role") RoleType role,
+            @RequestHeader("X-Role") String roleStr,
             @RequestHeader("X-User") String currentUser) {
-        List<WorkOrder> workOrders = workOrderService.queryWorkOrders(dto, role, currentUser);
+        RoleType role = RoleType.valueOf(roleStr);
+        String user = getUsername(currentUser);
+        List<WorkOrder> workOrders = workOrderService.queryWorkOrders(dto, role, user);
         return Result.success(workOrders);
     }
 
@@ -103,9 +123,11 @@ public class WorkOrderController {
 
     @GetMapping("/statistics")
     public Result<StatisticsVO> getStatistics(
-            @RequestHeader("X-Role") RoleType role,
+            @RequestHeader("X-Role") String roleStr,
             @RequestHeader("X-User") String currentUser) {
-        StatisticsVO statistics = workOrderService.getStatistics(role, currentUser);
+        RoleType role = RoleType.valueOf(roleStr);
+        String user = getUsername(currentUser);
+        StatisticsVO statistics = workOrderService.getStatistics(role, user);
         return Result.success(statistics);
     }
 }

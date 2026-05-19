@@ -6,16 +6,15 @@ import com.customer.server.repository.OperationLogRepository;
 import com.customer.server.repository.WorkOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkOrderService {
@@ -124,36 +123,37 @@ public class WorkOrderService {
     }
 
     public List<WorkOrder> queryWorkOrders(WorkOrderQueryDTO dto, RoleType role, String currentUser) {
-        Specification<WorkOrder> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        List<WorkOrder> allOrders;
+        if (role == RoleType.CUSTOMER) {
+            allOrders = workOrderRepository.findByCustomerNameOrderByCreateTimeDesc(currentUser);
+        } else if (role == RoleType.HANDLER) {
+            allOrders = workOrderRepository.findByHandlerOrderByCreateTimeDesc(currentUser);
+        } else {
+            allOrders = workOrderRepository.findAll(Sort.by(Sort.Direction.DESC, "createTime"));
+        }
 
-            if (role == RoleType.CUSTOMER) {
-                predicates.add(cb.equal(root.get("customerName"), currentUser));
-            } else if (role == RoleType.HANDLER) {
-                predicates.add(cb.equal(root.get("handler"), currentUser));
-            }
-
-            if (dto.getOrderNo() != null && !dto.getOrderNo().isEmpty()) {
-                predicates.add(cb.like(root.get("orderNo"), "%" + dto.getOrderNo() + "%"));
-            }
-            if (dto.getCustomerName() != null && !dto.getCustomerName().isEmpty()) {
-                predicates.add(cb.like(root.get("customerName"), "%" + dto.getCustomerName() + "%"));
-            }
-            if (dto.getProblemType() != null) {
-                predicates.add(cb.equal(root.get("problemType"), dto.getProblemType()));
-            }
-            if (dto.getPriority() != null) {
-                predicates.add(cb.equal(root.get("priority"), dto.getPriority()));
-            }
-            if (dto.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), dto.getStatus()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        Sort sort = Sort.by(Sort.Direction.DESC, "priority", "createTime");
-        return workOrderRepository.findAll(spec, sort);
+        return allOrders.stream()
+                .filter(order -> {
+                    if (dto.getOrderNo() != null && !dto.getOrderNo().isEmpty()) {
+                        if (!order.getOrderNo().contains(dto.getOrderNo())) return false;
+                    }
+                    if (dto.getCustomerName() != null && !dto.getCustomerName().isEmpty()) {
+                        if (!order.getCustomerName().contains(dto.getCustomerName())) return false;
+                    }
+                    if (dto.getProblemType() != null) {
+                        if (order.getProblemType() != dto.getProblemType()) return false;
+                    }
+                    if (dto.getPriority() != null) {
+                        if (order.getPriority() != dto.getPriority()) return false;
+                    }
+                    if (dto.getStatus() != null) {
+                        if (order.getStatus() != dto.getStatus()) return false;
+                    }
+                    return true;
+                })
+                .sorted(Comparator.comparing((WorkOrder o) -> o.getPriority().getLevel()).reversed()
+                        .thenComparing(WorkOrder::getCreateTime, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
     }
 
     public WorkOrder getWorkOrderById(Long id) {
@@ -168,11 +168,11 @@ public class WorkOrderService {
     public StatisticsVO getStatistics(RoleType role, String currentUser) {
         List<WorkOrder> allOrders;
         if (role == RoleType.CUSTOMER) {
-            allOrders = workOrderRepository.findByCustomerNameOrderByPriorityDescCreateTimeDesc(currentUser);
+            allOrders = workOrderRepository.findByCustomerNameOrderByCreateTimeDesc(currentUser);
         } else if (role == RoleType.HANDLER) {
-            allOrders = workOrderRepository.findByHandlerOrderByPriorityDescCreateTimeDesc(currentUser);
+            allOrders = workOrderRepository.findByHandlerOrderByCreateTimeDesc(currentUser);
         } else {
-            allOrders = workOrderRepository.findAll();
+            allOrders = workOrderRepository.findAll(Sort.by(Sort.Direction.DESC, "createTime"));
         }
 
         long total = allOrders.size();

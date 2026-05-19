@@ -36,7 +36,10 @@ export default {
     const savedUser = localStorage.getItem('currentUser')
     if (savedRole) this.currentRole = savedRole
     if (savedUser) this.currentUser = savedUser
-    this.applyRole()
+    if (!savedRole) {
+      localStorage.setItem('currentRole', this.currentRole)
+      localStorage.setItem('currentUser', this.currentUser)
+    }
   },
   methods: {
     handleRoleChange(role) {
@@ -50,8 +53,7 @@ export default {
     applyRole() {
       localStorage.setItem('currentRole', this.currentRole)
       localStorage.setItem('currentUser', this.currentUser)
-      this.$emit('roleChanged')
-      this.$router.go(0)
+      window.location.reload()
     }
   }
 }
