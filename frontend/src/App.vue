@@ -7,7 +7,7 @@
           <span>当前角色：</span>
           <el-select v-model="currentRole" @change="handleRoleChange" style="width: 120px; margin-right: 10px;">
             <el-option label="客户" value="CUSTOMER"></el-option>
-            <el-option label="客服" value="SERVICE"></el-option>
+            <el-option label="客服" value="CUSTOMER_SERVICE"></el-option>
             <el-option label="处理人" value="HANDLER"></el-option>
           </el-select>
           <span>用户：</span>
@@ -45,7 +45,7 @@ export default {
     handleRoleChange(role) {
       const userMap = {
         CUSTOMER: '张三',
-        SERVICE: '客服小王',
+        CUSTOMER_SERVICE: '客服小王',
         HANDLER: '李工'
       }
       this.currentUser = userMap[role]
