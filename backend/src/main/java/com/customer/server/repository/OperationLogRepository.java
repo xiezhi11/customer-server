@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface OperationLogRepository extends JpaRepository<OperationLog, Long> {
-    List<OperationLog> findByOrderIdOrderByOperateTimeDesc(Long orderId);
+    List<OperationLog> findByWorkOrderIdOrderByOperateTimeDesc(Long workOrderId);
 }

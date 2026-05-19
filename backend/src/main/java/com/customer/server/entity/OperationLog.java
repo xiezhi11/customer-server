@@ -14,22 +14,28 @@ public class OperationLog {
     private Long id;
 
     @Column(nullable = false)
-    private Long orderId;
+    private Long workOrderId;
 
     @Column(nullable = false, length = 64)
     private String operator;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 32)
+    private RoleType operatorRole;
+
     @Column(nullable = false, length = 200)
-    private String operation;
+    private String content;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 32)
+    private WorkOrderStatus statusBefore;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 32)
     private WorkOrderStatus statusAfter;
 
-    private LocalDateTime operateTime;
+    @Column(length = 500)
+    private String reason;
 
-    @PrePersist
-    protected void onCreate() {
-        operateTime = LocalDateTime.now();
-    }
+    private LocalDateTime operateTime;
 }

@@ -85,21 +85,36 @@ customer-server/
 | request.js | HTTP请求封装 | api/request.js |
 | App.vue | 根组件（含角色切换） | App.vue |
 
+## 环境要求
+
+- **JDK**: 1.8 或更高版本
+- **Maven**: 3.6 或更高版本
+- **Node.js**: 14.x 或更高版本
+- **npm**: 6.x 或更高版本
+
 ## 后端启动命令
 
+### Windows 快速启动（推荐）
+双击 `backend/start.bat` 脚本自动启动
+
+### 手动启动
 ```bash
 cd backend
 mvn clean install
 mvn spring-boot:run
 ```
 
-或直接运行主类：
+或在 IDE 中直接运行主类：
 ```
 com.customer.server.CustomerServerApplication
 ```
 
 ## 前端启动命令
 
+### Windows 快速启动（推荐）
+双击 `frontend/start.bat` 脚本自动启动
+
+### 手动启动
 ```bash
 cd frontend
 npm install
@@ -116,6 +131,23 @@ npm run serve
 - JDBC URL: `jdbc:h2:mem:customerdb`
 - 用户名: `sa`
 - 密码: （空）
+
+## 常见问题
+
+### 1. Maven 命令找不到
+- 请先安装 Maven 并配置环境变量
+- 下载地址: https://maven.apache.org/download.cgi
+
+### 2. Node.js 命令找不到
+- 请先安装 Node.js
+- 下载地址: https://nodejs.org/
+
+### 3. 前端启动后页面空白
+- 检查后端服务是否已启动
+- 检查浏览器控制台是否有报错信息
+
+### 4. 中文用户名乱码
+- 系统已自动处理编码问题，如仍有乱码请使用英文用户名测试
 
 ## 角色切换说明
 

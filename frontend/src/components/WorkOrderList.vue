@@ -268,9 +268,11 @@
             :timestamp="log.operateTime"
             placement="top">
             <el-card>
-              <h4>{{ log.operation }}</h4>
-              <p>操作人：{{ log.operator }}</p>
-              <p>操作后状态：{{ getStatusDesc(log.statusAfter) }}</p>
+              <h4>{{ log.content }}</h4>
+              <p>操作人：{{ log.operator }}（{{ getRoleDesc(log.operatorRole) }}）</p>
+              <p v-if="log.statusBefore">操作前状态：{{ getStatusDesc(log.statusBefore) }}</p>
+              <p v-if="log.statusAfter">操作后状态：{{ getStatusDesc(log.statusAfter) }}</p>
+              <p v-if="log.reason">操作原因：{{ log.reason }}</p>
             </el-card>
           </el-timeline-item>
         </el-timeline>
@@ -563,6 +565,14 @@ export default {
         CLOSED: '已关闭'
       }
       return map[status] || status
+    },
+    getRoleDesc(role) {
+      const map = {
+        CUSTOMER: '客户',
+        CUSTOMER_SERVICE: '客服',
+        HANDLER: '处理人'
+      }
+      return map[role] || role
     },
     getStatusTagType(status) {
       const map = {
